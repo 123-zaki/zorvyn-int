@@ -85,6 +85,15 @@ export const verifyValidator = () => {
         param('otp')
             .notEmpty().withMessage("Otp is required!")
             .isString().withMessage("Otp must be a string")
-            .isLength({min: 4, max: 4}).withMessage("Otp must be of exactly 4 digit")
+            .isLength({ min: 4, max: 4 }).withMessage("Otp must be of exactly 4 digit")
+    ];
+};
+
+export const validateResendVerificationEmail = () => {
+    return [
+        body('email')
+            .trim()
+            .notEmpty().withMessage("Email is required!")
+            .isEmail().withMessage("Enter a valid email"),
     ];
 };

@@ -149,6 +149,10 @@ export const login = async (req, res) => {
             });
         }
 
+        if (existingUser.isBlocked) {
+            return res.status(403).json({ message: "You are blocked by admin, please contact admin" });
+        }
+
         // if password is correct
         // ---> A. create refresh token and access token
         const refreshToken = jwt.sign(
@@ -187,6 +191,7 @@ export const login = async (req, res) => {
 
         res.status(200).cookie('refreshToken', refreshToken, cookieOptions).cookie('accessToken', accessToken, cookieOptions).json({
             user: {
+                _id: existingUser._id,
                 email: existingUser.email,
                 username: existingUser.name,
                 role: existingUser.role,
@@ -395,4 +400,43 @@ export const getCurrentUser = async (req, res) => {
             error: error.message || "Internal server error"
         });
     }
+};
+
+export const resendVerificationEmail = async (req, res) => {
+    const { email } = req.body;
+    // find user based on email
+    const user = await User.findOne({ email });
+    // if user does not exist
+    if (!user) {
+        return res.status(404).json({ message: "User not found" });
+    }
+    // if user found check if it is already verified?
+    if (user.isActive) {
+        return res.status(400).json({ message: "User already verified" });
+    }
+    // ---> if user is not already verified
+    let verificationOtp = "";
+    for (let i = 0; i < 4; i++) {
+        verificationOtp += Math.floor(Math.random() * 10);
+    }
+
+    // Create verification url
+    const verificationUrl = `${process.env.BASE_URL}/api/v1/auth/verify/${user._id}/${verificationOtp}`;
+
+    // Send Verification Token through mail to user
+    sendEmail({
+        email: user.email,
+        subject: "Verification Email",
+        mailGenContent: verificationMailGenContent(user.name, verificationUrl)
+    });
+
+    user.verificationOtp = verificationOtp;
+    user.verificationOtpExpiry = new Date(Date.now() + 15 * 60 * 1000);
+
+    // save user in database
+    await user.save();
+
+    return res.status(201).json(
+        { message: "If this email exists then a verification email will be sent" }
+    );
 };

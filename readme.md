@@ -135,6 +135,12 @@ src/
 
 ## Design Decisions
 
+
+### User Registration & Role Flow
+- Only the initial admin is seeded into the system.
+- Users can register themselves, but are always assigned the "viewer" role by default.
+- Role upgrades (to analyst or admin) can only be performed by an existing admin.
+
 ### Shared Data Model
 - Records are global (not user-specific)
 - Admin manages data

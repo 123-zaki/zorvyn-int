@@ -45,19 +45,23 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ["viewer", "analyst", "admin"],
         default: "viewer"
+    },
+    isBlocked: {
+        type: Boolean,
+        default: false
     }
-}, {timestamps: true});
+}, { timestamps: true });
 
 // pre hook (always run before saving to hash password)
-userSchema.pre('save', async function(next) {
-    if (!this.isModified('password')) return next();
+userSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) return;
 
     this.password = await bcrypt.hash(this.password, 10);
     // next();
 });
 
 // to check whether passowrd is correct or not
-userSchema.methods.isPasswordCorrect = async function(password) {
+userSchema.methods.isPasswordCorrect = async function (password) {
     const isCorrect = await bcrypt.compare(password, this.password);
 
     return isCorrect;

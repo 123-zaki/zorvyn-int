@@ -26,11 +26,11 @@ export const blockUser = async (req, res) => {
             });
         }
 
-        if (!user.isActive) {
+        if (user.isBlocked) {
             return res.status(409).json({ message: "User already blocked" });
         }
 
-        user.isActive = false;
+        user.isBlocked = true;
         await user.save();
 
         return res.status(200).json({
@@ -71,11 +71,11 @@ export const unblockUser = async (req, res) => {
             });
         }
 
-        if (user.isActive) {
-            return res.status(409).json({ message: "User is already active" });
+        if (!user.isBlocked) {
+            return res.status(409).json({ message: "User is already unblocked" });
         }
 
-        user.isActive = true;
+        user.isBlocked = false;
         await user.save();
 
         return res.status(200).json({
