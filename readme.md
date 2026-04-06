@@ -151,7 +151,7 @@ src/
 
 ### 1. Clone Repository
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/123-zaki/zorvyn-int.git
 cd finance-dashboard-backend
 ```
 
